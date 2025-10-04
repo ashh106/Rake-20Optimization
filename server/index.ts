@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
+import { getData, optimize, simulate, forecast, uploadData, reports } from "./routes/sail";
 
 export function createServer() {
   const app = express();
@@ -18,6 +19,14 @@ export function createServer() {
   });
 
   app.get("/api/demo", handleDemo);
+
+  // SAIL prototype endpoints (stubbed)
+  app.get("/api/get_data", getData);
+  app.post("/api/forecast", forecast);
+  app.post("/api/optimize", optimize);
+  app.post("/api/simulate", simulate);
+  app.post("/api/upload_data", uploadData);
+  app.get("/api/reports", reports);
 
   return app;
 }
