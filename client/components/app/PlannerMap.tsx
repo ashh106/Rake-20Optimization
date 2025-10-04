@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 
-export interface Node { id: string; label: string; x: number; y: number }
+import type { Node } from "./IndiaRailMap";
 export interface RakeMarker { id: string; x: number; y: number; label: string }
 
 export default function PlannerMap({ nodes, rakes }: { nodes: Node[]; rakes: RakeMarker[] }) {
