@@ -1,6 +1,6 @@
 import { useState } from "react";
 import RakeTable from "@/components/app/RakeTable";
-import IndiaRailMap from "@/components/app/IndiaRailMap";
+import PlannerMap from "@/components/app/PlannerMap";
 import WhatIfModal from "@/components/app/WhatIfModal";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
