@@ -50,9 +50,9 @@ export default function IndiaRailMap({
               strokeWidth={1.2}
               stroke="hsl(var(--primary))"
               className="[stroke-dasharray:3_3]"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.4 }}
+              initial={{ opacity: 0, strokeDashoffset: 6 }}
+              animate={{ opacity: 1, strokeDashoffset: [0, 6, 0] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
               onMouseEnter={() => setHover(r)}
               onMouseLeave={() => setHover(null)}
             />
