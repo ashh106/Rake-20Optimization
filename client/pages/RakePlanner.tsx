@@ -43,7 +43,7 @@ export default function RakePlanner() {
       </div>
       <RakeTable rows={rows} />
       <div>
-        <IndiaRailMap nodes={nodes} routes={routes} />
+        <PlannerMap nodes={nodes as any} rakes={[{ id: "m1", x: 55, y: 40, label: "R123" }, { id: "m2", x: 48, y: 45, label: "R124" }]} />
       </div>
     </div>
   );
