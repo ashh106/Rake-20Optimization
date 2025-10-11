@@ -5,6 +5,8 @@ export default function Header({ currentPath }: { currentPath: string }) {
   const titleMap: Record<string, string> = {
     "/": "Rake Formation Optimization Dashboard – SAIL",
     "/planner": "Rake Formation Planner",
+    "/orders": "Customer Orders",
+    "/inventories": "Inventories & Stockyards",
     "/forecasts": "AI Forecasts & What-If Analysis",
     "/reports": "Reports & Insights",
     "/admin": "Admin & Data Management",
