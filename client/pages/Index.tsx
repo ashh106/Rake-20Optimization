@@ -8,18 +8,20 @@ import { CircleDollarSign, CheckCircle, Gauge, Shield } from "lucide-react";
 
 export default function DashboardOverview() {
   const [kpis, setKpis] = useState(mockKpis);
+  const [alerts, setAlerts] = useState([] as { id: string; type: "info" | "alert"; text: string; time: string }[]);
 
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetch("/api/kpis");
-        if (res.ok) {
-          const data = await res.json();
-          setKpis(data);
-          return;
+        const [r1, r2] = await Promise.all([fetch("/api/kpis"), fetch("/api/alerts")]);
+        if (r1.ok) setKpis(await r1.json()); else setKpis(mockKpis);
+        if (r2.ok) {
+          const items = await r2.json();
+          setAlerts(items.map((a: any) => ({ id: a.id, type: a.type === "warning" ? "alert" : "info", text: a.text, time: new Date(a.ts).toLocaleTimeString() })));
         }
-      } catch {}
-      setKpis(mockKpis);
+      } catch {
+        setKpis(mockKpis);
+      }
     };
     load();
   }, []);
