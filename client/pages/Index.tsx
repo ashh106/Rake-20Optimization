@@ -42,7 +42,7 @@ export default function DashboardOverview() {
           <ProcessPanel />
         </div>
         <div>
-          <LiveFeed items={feed} />
+          <LiveFeed items={alerts} />
         </div>
       </div>
     </div>
