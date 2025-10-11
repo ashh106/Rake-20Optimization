@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Train, LineChart, BarChart3, Shield } from "lucide-react";
+import { LayoutDashboard, Train, LineChart, BarChart3, Shield, ListChecks } from "lucide-react";
 
 const nav = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
