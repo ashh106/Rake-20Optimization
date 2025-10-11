@@ -1,49 +1,85 @@
-import { useState } from "react";
-import RakeTable from "@/components/app/RakeTable";
+import { useEffect, useState } from "react";
 import PlannerMap from "@/components/app/PlannerMap";
 import WhatIfModal from "@/components/app/WhatIfModal";
+import GeneratePlanModal from "@/components/app/GeneratePlanModal";
+import PlanTable, { type PlanRow } from "@/components/app/PlanTable";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { nodes, routes as initialRoutes, rakeRows as initialRows } from "@/data/mock";
+import { nodes } from "@/data/mock";
 
 export default function RakePlanner() {
   const { toast } = useToast();
-  const [rows, setRows] = useState(initialRows);
-  const [routes, setRoutes] = useState(initialRoutes);
-  const [loading, setLoading] = useState(false);
+  const [planDate, setPlanDate] = useState<string>(new Date().toISOString().slice(0, 10));
+  const [planRows, setPlanRows] = useState<PlanRow[]>([]);
 
-  const optimize = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch("/api/optimize", { method: "POST" });
-      if (!res.ok) throw new Error("Failed");
-      const data = await res.json();
-      if (Array.isArray(data.rows)) setRows(data.rows);
-      if (Array.isArray(data.routes)) setRoutes(data.routes);
-      toast({ title: "New rake plan successfully generated!" });
-    } catch (e) {
-      toast({ title: "Data sync delayed – retry in 5 mins", description: String(e), variant: "destructive" });
-    } finally {
-      setLoading(false);
+  const loadPlan = async (date: string) => {
+    const res = await fetch(`/api/plans/${date}`);
+    const data = await res.json();
+    setPlanRows(data.rakes || []);
+  };
+
+  useEffect(() => {
+    loadPlan(planDate);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const startOptimize = async ({ horizon_hours, use_forecast, quick }: { horizon_hours: number; use_forecast: boolean; quick: boolean }) => {
+    const res = await fetch(`/api/optimize?quick=${quick ? "true" : "false"}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ horizon_hours, use_forecast, time_limit_seconds: quick ? 60 : 120 }) });
+    const data = await res.json();
+    toast({ title: "Optimization running…", description: `Job ${data.job_id}` });
+    return { job_id: data.job_id as string };
+  };
+
+  const onPlanReady = async (date: string) => {
+    setPlanDate(date);
+    await loadPlan(date);
+    toast({ title: "Plan ready — Review or Approve" });
+  };
+
+  const reRunQuick = async () => {
+    const res = await fetch(`/api/optimize?quick=true`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ horizon_hours: 24, use_forecast: true, time_limit_seconds: 60 }) });
+    const data = await res.json();
+    toast({ title: "Quick optimize started", description: `Job ${data.job_id}` });
+  };
+
+  const approvePlan = async () => {
+    const res = await fetch(`/plans/${planDate}/lock`, { method: "POST" });
+    if (res.ok) {
+      toast({ title: "Plan locked & exported (CSV/PDF)" });
+      // Trigger mock downloads
+      const csv = new Blob(["rake_id,source,destinations,load_t,wagons,dep,eta,util,cost,status\n" + planRows.map((r) => `${r.rake_id},${r.source},${r.destinations.join("|")},${r.load_tonnes},${r.wagons},${r.departure},${r.eta},${r.utilization},${r.cost},${r.status}`).join("\n")], { type: "text/csv" });
+      const a1 = document.createElement("a"); a1.href = URL.createObjectURL(csv); a1.download = `plan-${planDate}.csv`; a1.click();
+      const pdf = new Blob(["Plan PDF placeholder"], { type: "application/pdf" });
+      const a2 = document.createElement("a"); a2.href = URL.createObjectURL(pdf); a2.download = `plan-${planDate}.pdf`; a2.click();
     }
+  };
+
+  const onEdit = async (row: PlanRow) => {
+    const reason = window.prompt("Provide override reason:");
+    if (!reason) return;
+    await fetch("/api/audit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ user: "planner", reason, change: { rake_id: row.rake_id, edit: { source: row.source, destinations: row.destinations, load_tonnes: row.load_tonnes } } }) });
+    toast({ title: "Override recorded", description: row.rake_id });
+    reRunQuick();
   };
 
   const simulate = async (payload: { delayMin: number; loadDelta: number }) => {
     const res = await fetch("/api/simulate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
     const data = await res.json();
-    if (Array.isArray(data.rows)) setRows(data.rows);
-    toast({ title: "Simulation complete", description: `New total cost: ₹${data.total_cost?.toLocaleString("en-IN")}` });
+    setPlanRows(data.rakes || []);
+    toast({ title: "Simulation complete", description: `Δ Cost: ₹${(data.deltas?.cost_delta ?? 0).toLocaleString("en-IN")}` });
   };
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
-        <Button onClick={optimize} disabled={loading}>{loading ? "Optimizing..." : "Generate New Plan"}</Button>
+        <GeneratePlanModal onStart={startOptimize} onComplete={onPlanReady} />
+        <Button variant="secondary" onClick={reRunQuick}>Re-run Quick Optimize</Button>
+        <Button variant="outline" onClick={approvePlan}>Approve & Lock</Button>
         <WhatIfModal onRun={simulate} />
       </div>
-      <RakeTable rows={rows} />
+      <PlanTable rows={planRows} onEdit={onEdit} />
       <div>
-        <PlannerMap nodes={nodes} rakes={[{ id: "m1", x: 55, y: 40, label: "R123" }, { id: "m2", x: 48, y: 45, label: "R124" }]} />
+        <PlannerMap nodes={nodes} rakes={planRows.map((r, i) => ({ id: r.rake_id, x: 50 + i * 5, y: 40 + i * 2, label: r.rake_id }))} />
       </div>
     </div>
   );
