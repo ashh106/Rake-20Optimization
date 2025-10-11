@@ -1,11 +1,12 @@
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, Train, LineChart, BarChart3, Shield, ListChecks } from "lucide-react";
+import { LayoutDashboard, Train, LineChart, BarChart3, Shield, ListChecks, ActivitySquare } from "lucide-react";
 
 const nav = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
   { to: "/planner", label: "Rake Planner", icon: Train },
   { to: "/orders", label: "Orders", icon: ListChecks },
   { to: "/inventories", label: "Inventories", icon: BarChart3 },
+  { to: "/live", label: "Live Operations", icon: ActivitySquare },
   { to: "/forecasts", label: "Forecasts & Simulations", icon: LineChart },
   { to: "/reports", label: "Reports", icon: BarChart3 },
   { to: "/admin", label: "Admin Panel", icon: Shield },
