@@ -10,8 +10,18 @@ export default function DashboardOverview() {
   const [kpis, setKpis] = useState(mockKpis);
 
   useEffect(() => {
-    // Placeholder for live updates when backend is connected
-    setKpis(mockKpis);
+    const load = async () => {
+      try {
+        const res = await fetch("/api/kpis");
+        if (res.ok) {
+          const data = await res.json();
+          setKpis(data);
+          return;
+        }
+      } catch {}
+      setKpis(mockKpis);
+    };
+    load();
   }, []);
 
   return (
