@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import RakePlanner from "./pages/RakePlanner";
 import Orders from "./pages/Orders";
 import Inventories from "./pages/Inventories";
+import LiveOps from "./pages/LiveOps";
 import { Placeholder } from "./pages/Placeholders";
 import Layout from "./components/layout/Layout";
 
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/planner" element={<RakePlanner />} />
             <Route path="/orders" element={<Orders />} />
             <Route path="/inventories" element={<Inventories />} />
+            <Route path="/live" element={<LiveOps />} />
             <Route path="/forecasts" element={<Placeholder title="AI Forecasts & What-If Analysis" />} />
             <Route path="/reports" element={<Placeholder title="Reports & Insights" />} />
             <Route path="/admin" element={<Placeholder title="Admin & Data Management" />} />
