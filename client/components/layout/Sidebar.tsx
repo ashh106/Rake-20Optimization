@@ -4,6 +4,8 @@ import { LayoutDashboard, Train, LineChart, BarChart3, Shield } from "lucide-rea
 const nav = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
   { to: "/planner", label: "Rake Planner", icon: Train },
+  { to: "/orders", label: "Orders", icon: ListChecks },
+  { to: "/inventories", label: "Inventories", icon: BarChart3 },
   { to: "/forecasts", label: "Forecasts & Simulations", icon: LineChart },
   { to: "/reports", label: "Reports", icon: BarChart3 },
   { to: "/admin", label: "Admin Panel", icon: Shield },
