@@ -2,7 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
-import { getData, optimize, simulate, forecast, uploadData, reports, kpis, orders, stockyards, rakes, lockPlan, jobStatus } from "./routes/sail";
+import { getData, optimize, simulate, forecast, uploadData, reports, kpis, orders, stockyards, rakes, lockPlan, jobStatus, planByDate, alerts, live, audit, modelRetrain, forecastInventory } from "./routes/sail";
 
 export function createServer() {
   const app = express();
@@ -27,12 +27,18 @@ export function createServer() {
   app.get("/api/stockyards", stockyards);
   app.get("/api/rakes", rakes);
   app.post("/api/forecast", forecast);
+  app.get("/api/forecast/inventory", forecastInventory);
   app.post("/api/optimize", optimize);
   app.post("/api/simulate", simulate);
   app.post("/api/upload_data", uploadData);
   app.get("/api/reports", reports);
+  app.get("/api/plans/:date", planByDate);
   app.post("/plans/:date/lock", lockPlan);
   app.get("/api/jobs/:id", jobStatus);
+  app.get("/api/alerts", alerts);
+  app.get("/api/live", live);
+  app.post("/api/audit", audit);
+  app.post("/api/model/retrain", modelRetrain);
 
   return app;
 }
