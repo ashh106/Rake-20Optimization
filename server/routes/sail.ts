@@ -5,9 +5,9 @@ const KPI_SUMMARY = {
   total_cost: 1234000,
   on_time_dispatch: 94,
   rake_utilization: 89,
-  avg_turnaround_hours: 26,
-  penalty_savings: 24500,
+  pending_orders: 12,
   active_rakes: 14,
+  last_updated: "2025-10-03T09:00:00Z",
 };
 
 const ORDERS = [
@@ -16,7 +16,7 @@ const ORDERS = [
 ];
 
 const STOCKYARDS = [
-  { stockyard_id: "SY-BOK", name: "Bokaro", avail_t: 1200, max_capacity: 5000, loading_rate_tph: 200, lat: 23.6693, lon: 86.1514 },
+  { stockyard_id: "SY-BOK", name: "Bokaro", avail_t: 1200, max_capacity: 5000, loading_rate_tph: 200, lat: 23.6693, lon: 86.1514, last_updated: "2025-10-03T08:30:00Z" },
   { stockyard_id: "SY-DGP", name: "Durgapur", avail_t: 900, max_capacity: 4000, loading_rate_tph: 180, lat: 23.54, lon: 87.2926 },
 ];
 
@@ -24,6 +24,8 @@ const RAKES = [
   { rake_id: "R101", capacity_t: 1000, available_from: "2025-10-05T06:00", status: "available", home_siding: "SY-BOK" },
   { rake_id: "R102", capacity_t: 1000, available_from: "2025-10-05T09:00", status: "enroute", home_siding: "SY-DGP" },
 ];
+
+let AUDIT_LOG: Array<{ id: string; user: string; ts: string; reason: string; change: Record<string, unknown> }> = [];
 
 export const getData: RequestHandler = (_req, res) => {
   res.json({ ok: true, message: "live data placeholder" });
@@ -52,65 +54,65 @@ export const rakes: RequestHandler = (_req, res) => {
   res.json(RAKES);
 };
 
-export const optimize: RequestHandler = (_req, res) => {
-  const rows = [
-    {
-      rake_id: "R123",
-      source: "Bokaro",
-      destination: "Kolkata",
-      load_tonnes: 990,
-      departure: "2025-10-05T08:10",
-      eta: "2025-10-05T17:55",
-      cost: 53200,
-      status: "On Time",
-    },
-    {
-      rake_id: "R124",
-      source: "Rourkela",
-      destination: "Ranchi",
-      load_tonnes: 960,
-      departure: "2025-10-05T09:35",
-      eta: "2025-10-05T17:40",
-      cost: 49650,
-      status: "On Time",
-    },
-  ];
-  const routes = [
-    { id: "r1", from: "bokaro", to: "kolkata", rake: "R123", load: 990, eta: "17:55" },
-    { id: "r2", from: "rourkela", to: "ranchi", rake: "R124", load: 960, eta: "17:40" },
-  ];
-  res.json({ rows, routes });
+// Generate Plan: returns a job
+export const optimize: RequestHandler = (req, res) => {
+  const job_id = `job-${Math.floor(Math.random() * 1000)}`;
+  const quick = (req.query.quick ?? "false").toString() === "true";
+  const submitted_at = new Date().toISOString();
+  const time_limit_seconds = Number((req.body?.time_limit_seconds as number) ?? (quick ? 60 : 120));
+  res.json({ job_id, status: "running", submitted_at, time_limit_seconds });
+};
+
+// Job polling
+export const jobStatus: RequestHandler = (req, res) => {
+  const { id } = req.params;
+  const date = new Date().toISOString().slice(0, 10);
+  res.json({ job_id: id, status: "completed", progress: 100, result_url: `/api/plans/${date}`, completed_at: new Date().toISOString() });
+};
+
+// Plan result for a date
+export const planByDate: RequestHandler = (req, res) => {
+  const { date } = req.params;
+  const plan = {
+    date,
+    plan_id: `plan-${date.replace(/-/g, "")}-v1`,
+    rakes: [
+      { rake_id: "R101", source: "Bokaro", destinations: ["Kolkata"], load_tonnes: 980, wagons: 20, departure: `${date}T08:00`, eta: `${date}T18:00`, utilization: 98, cost: 54000, status: "validated" },
+      { rake_id: "R102", source: "Durgapur", destinations: ["Patna"], load_tonnes: 950, wagons: 19, departure: `${date}T09:30`, eta: `${date}T19:45`, utilization: 95, cost: 49800, status: "pending_check" },
+    ],
+    summary: { total_cost: 103800, avg_util: 96 },
+  } as const;
+  res.json(plan);
 };
 
 export const simulate: RequestHandler = (req, res) => {
-  const { delayMin = 15, loadDelta = 0 } = req.body || {};
-  const rows = [
-    {
-      rake_id: "R123",
-      source: "Bokaro",
-      destination: "Kolkata",
-      load_tonnes: 980 + Number(loadDelta || 0),
-      departure: "2025-10-05T08:00",
-      eta: "2025-10-05T18:00",
-      cost: 54000 + Math.max(0, Number(delayMin || 0)) * 10,
-      status: delayMin > 20 ? "Delayed" : "On Time",
-    },
-    {
-      rake_id: "R124",
-      source: "Rourkela",
-      destination: "Ranchi",
-      load_tonnes: 960,
-      departure: "2025-10-05T09:30",
-      eta: "2025-10-05T17:45",
-      cost: 49800,
-      status: "On Time",
-    },
-  ];
-  res.json({ rows, total_cost: rows.reduce((a, b) => a + b.cost, 0) });
+  const { overrides = [], horizon_hours = 24 } = req.body || {};
+  const today = new Date().toISOString().slice(0, 10);
+  const alt = {
+    date: today,
+    plan_id: "plan-alt",
+    rakes: [
+      { rake_id: "R101", source: "Bokaro", destinations: ["Kolkata"], load_tonnes: 970, wagons: 20, departure: `${today}T08:30`, eta: `${today}T18:30`, utilization: 97, cost: 54500, status: "validated" },
+      { rake_id: "R102", source: "Durgapur", destinations: ["Patna"], load_tonnes: 930, wagons: 19, departure: `${today}T10:00`, eta: `${today}T20:00`, utilization: 93, cost: 50500, status: "delayed" },
+    ],
+    summary: { total_cost: 105000, avg_util: 95 },
+    deltas: { cost_delta: 1200, utilization_delta: -1 },
+    horizon_hours,
+    overrides,
+  };
+  res.json(alt);
 };
 
 export const forecast: RequestHandler = (_req, res) => {
   res.json({ ok: true, message: "forecast complete" });
+};
+
+export const forecastInventory: RequestHandler = (req, res) => {
+  const { stockyard = "SY-BOK", horizon = "3" } = req.query as Record<string, string>;
+  const days = Number(horizon);
+  const base = STOCKYARDS.find((s) => s.stockyard_id === stockyard)?.avail_t ?? 1000;
+  const series = Array.from({ length: days }).map((_, i) => ({ day: i + 1, value: Math.max(0, base + (i - 1) * 50) }));
+  res.json({ stockyard, horizon: days, series });
 };
 
 export const uploadData: RequestHandler = (_req, res) => {
@@ -126,7 +128,27 @@ export const lockPlan: RequestHandler = (req, res) => {
   res.json({ ok: true, date, message: "Plan locked", exported: { csv: true, pdf: true } });
 };
 
-export const jobStatus: RequestHandler = (req, res) => {
-  const { id } = req.params;
-  res.json({ id, status: "completed", progress: 100 });
+export const alerts: RequestHandler = (_req, res) => {
+  res.json([
+    { id: "a1", type: "warning", text: "Siding S1 nearing capacity", ts: new Date().toISOString() },
+    { id: "a2", type: "info", text: "Maintenance window for R102 at 18:00", ts: new Date().toISOString() },
+  ]);
+};
+
+export const live: RequestHandler = (_req, res) => {
+  res.json([
+    { id: "e1", text: "Rake R123 dispatched from Bokaro", ts: new Date().toISOString() },
+    { id: "e2", text: "Rake R126 loading at Durgapur", ts: new Date().toISOString() },
+  ]);
+};
+
+export const audit: RequestHandler = (req, res) => {
+  const { user = "planner", reason = "", change = {} } = req.body || {};
+  const item = { id: `audit-${AUDIT_LOG.length + 1}`, user, ts: new Date().toISOString(), reason, change };
+  AUDIT_LOG.push(item);
+  res.json(item);
+};
+
+export const modelRetrain: RequestHandler = (_req, res) => {
+  res.json({ ok: true, started_at: new Date().toISOString(), job_id: `model-${Math.floor(Math.random() * 1000)}` });
 };
