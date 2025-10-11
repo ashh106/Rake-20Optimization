@@ -3,7 +3,7 @@ import KPICard from "@/components/app/KPICard";
 import IndiaRailMap from "@/components/app/IndiaRailMap";
 import LiveFeed from "@/components/app/LiveFeed";
 import ProcessPanel from "@/components/app/ProcessPanel";
-import { kpis as mockKpis, nodes, routes, feed } from "@/data/mock";
+import { kpis as mockKpis, nodes, routes } from "@/data/mock";
 import { CircleDollarSign, CheckCircle, Gauge, Shield } from "lucide-react";
 
 export default function DashboardOverview() {
