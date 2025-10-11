@@ -7,6 +7,7 @@ export default function Header({ currentPath }: { currentPath: string }) {
     "/planner": "Rake Formation Planner",
     "/orders": "Customer Orders",
     "/inventories": "Inventories & Stockyards",
+    "/live": "Live Operations",
     "/forecasts": "AI Forecasts & What-If Analysis",
     "/reports": "Reports & Insights",
     "/admin": "Admin & Data Management",
