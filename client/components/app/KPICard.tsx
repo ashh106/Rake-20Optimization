@@ -10,8 +10,10 @@ export default function KPICard({ label, value, prefix = "", suffix = "", icon, 
   }, [value, controls]);
 
   return (
-    <motion.div
-      className="rounded-xl bg-card text-card-foreground border p-4 shadow-sm"
+    <motion.button
+      type="button"
+      onClick={onClick}
+      className="rounded-xl bg-card text-card-foreground border p-4 shadow-sm text-left hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring"
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
@@ -23,7 +25,7 @@ export default function KPICard({ label, value, prefix = "", suffix = "", icon, 
       <div className="mt-2 text-2xl font-bold">
         <Counter to={value} prefix={prefix} suffix={suffix} />
       </div>
-    </motion.div>
+    </motion.button>
   );
 }
 
