@@ -17,7 +17,10 @@ const ORDERS = [
 
 const STOCKYARDS = [
   { stockyard_id: "SY-BOK", name: "Bokaro", avail_t: 1200, max_capacity: 5000, loading_rate_tph: 200, lat: 23.6693, lon: 86.1514, last_updated: "2025-10-03T08:30:00Z" },
-  { stockyard_id: "SY-DGP", name: "Durgapur", avail_t: 900, max_capacity: 4000, loading_rate_tph: 180, lat: 23.54, lon: 87.2926 },
+  { stockyard_id: "SY-DGP", name: "Durgapur", avail_t: 900, max_capacity: 4000, loading_rate_tph: 180, lat: 23.54, lon: 87.2926, last_updated: "2025-10-03T08:35:00Z" },
+  { stockyard_id: "SY-RKL", name: "Rourkela", avail_t: 750, max_capacity: 4200, loading_rate_tph: 170, lat: 22.227, lon: 84.864, last_updated: "2025-10-03T08:40:00Z" },
+  { stockyard_id: "SY-RAN", name: "Ranchi", avail_t: 680, max_capacity: 3600, loading_rate_tph: 150, lat: 23.344, lon: 85.309, last_updated: "2025-10-03T08:45:00Z" },
+  { stockyard_id: "SY-KOL", name: "Kolkata", avail_t: 500, max_capacity: 3000, loading_rate_tph: 140, lat: 22.5726, lon: 88.3639, last_updated: "2025-10-03T08:50:00Z" },
 ];
 
 const RAKES = [
@@ -119,9 +122,9 @@ export const forecastSummary: RequestHandler = (_req, res) => {
 
 export const insights: RequestHandler = (_req, res) => {
   res.json([
-    { id: "i1", text: "Add 2 more wagons to Rake R104 to reduce partial load penalty.", action: "apply_plan" },
-    { id: "i2", text: "Bokaro → Durgapur rakes underutilized (74%). Reassign 1 to Kolkata.", action: "view_details" },
-    { id: "i3", text: "Next 12 hrs: Predicted congestion at Rourkela Siding S2.", action: "apply_plan" },
+    { id: "i1", category: "Utilization", priority: "High", text: "Add 2 more wagons to Rake R104 to reduce partial load penalty.", action: "apply_plan" },
+    { id: "i2", category: "Routing", priority: "Moderate", text: "Bokaro → Durgapur rakes underutilized (74%). Reassign 1 to Kolkata.", action: "view_details" },
+    { id: "i3", category: "Delay", priority: "High", text: "Next 12 hrs: Predicted congestion at Rourkela Siding S2.", action: "apply_plan" },
   ]);
 };
 
