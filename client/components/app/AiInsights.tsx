@@ -26,10 +26,15 @@ export default function AiInsightsPanel() {
       <div className="mt-3 space-y-3">
         {items.map((i) => (
           <div key={i.id} className="border rounded-md p-2 bg-background">
+            <div className="flex items-center justify-between mb-1">
+              <div className="text-[11px] px-1.5 py-0.5 rounded-full border mr-2">{i.category || "Insight"}</div>
+              <div className={`text-[11px] px-1.5 py-0.5 rounded-full ${i.priority==="High"?"bg-red-100 text-red-700":"bg-yellow-100 text-yellow-700"}`}>{i.priority || "Info"}</div>
+            </div>
             <div className="text-sm mb-2">{i.text}</div>
             <div className="flex gap-2">
-              <Button size="sm" onClick={() => apply(i)}>Apply Plan</Button>
-              <Button size="sm" variant="outline">View Details</Button>
+              <Button size="sm" onClick={() => apply(i)}>Auto-resolve</Button>
+              <Button size="sm" variant="outline">Assign</Button>
+              <Button size="sm" variant="secondary">Mark Resolved</Button>
             </div>
           </div>
         ))}
