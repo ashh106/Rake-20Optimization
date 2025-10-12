@@ -72,6 +72,7 @@ export default function DashboardOverview() {
               <button className="px-2 py-1 rounded-full border">Low Utilization</button>
               <button className="px-2 py-1 rounded-full border">Critical Orders</button>
             </div>
+            <WhatIfModal onRun={async (p)=>{ await fetch("/api/simulate", { method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({ delayMin:p.delayMin, loadDelta:p.loadDelta, horizon_hours:24 }) }); }} />
           </div>
           <RealMap scenario="current" />
           <ProcessPanel />
