@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import KPICard from "@/components/app/KPICard";
 import IndiaRailMap from "@/components/app/IndiaRailMap";
+import RealMap from "@/components/app/RealMap";
 import LiveFeed from "@/components/app/LiveFeed";
 import ProcessPanel from "@/components/app/ProcessPanel";
 import AiInsightsPanel from "@/components/app/AiInsights";
