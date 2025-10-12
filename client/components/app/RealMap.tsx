@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import L, { Map as LeafletMap, LayerGroup, Marker, Polyline, Circle } from "leaflet";
-import "leaflet/dist/leaflet.css";
+// Leaflet CSS is injected via CDN to avoid Vite fs allow issues
 
 interface LiveRake { id: string; from: string; to: string; eta: string; status: "on_time"|"delayed"|"idle"; cost?: number }
 
