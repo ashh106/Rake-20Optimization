@@ -107,6 +107,24 @@ export const forecast: RequestHandler = (_req, res) => {
   res.json({ ok: true, message: "forecast complete" });
 };
 
+export const forecastSummary: RequestHandler = (_req, res) => {
+  res.json({
+    forecasted_dispatches: 18,
+    predicted_cost_trend: "down",
+    expected_utilization_pct: 91,
+    delay_risk_pct: 12,
+    cost_breakdown: { freight: 920000, demurrage: 18000, penalties: 6200, idle_time: 8500 },
+  });
+};
+
+export const insights: RequestHandler = (_req, res) => {
+  res.json([
+    { id: "i1", text: "Add 2 more wagons to Rake R104 to reduce partial load penalty.", action: "apply_plan" },
+    { id: "i2", text: "Bokaro → Durgapur rakes underutilized (74%). Reassign 1 to Kolkata.", action: "view_details" },
+    { id: "i3", text: "Next 12 hrs: Predicted congestion at Rourkela Siding S2.", action: "apply_plan" },
+  ]);
+};
+
 export const forecastInventory: RequestHandler = (req, res) => {
   const { stockyard = "SY-BOK", horizon = "3" } = req.query as Record<string, string>;
   const days = Number(horizon);
@@ -137,8 +155,9 @@ export const alerts: RequestHandler = (_req, res) => {
 
 export const live: RequestHandler = (_req, res) => {
   res.json([
-    { id: "e1", text: "Rake R123 dispatched from Bokaro", ts: new Date().toISOString() },
-    { id: "e2", text: "Rake R126 loading at Durgapur", ts: new Date().toISOString() },
+    { id: "e1", type: "dispatch", text: "Rake R123 dispatched from Bokaro", ts: new Date().toISOString() },
+    { id: "e2", type: "maintenance", text: "Rake R110 scheduled maintenance window", ts: new Date().toISOString() },
+    { id: "e3", type: "alert", text: "R102 delayed 65 min due to congestion", ts: new Date().toISOString() },
   ]);
 };
 
