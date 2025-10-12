@@ -60,7 +60,19 @@ export default function DashboardOverview() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2 space-y-4">
-          <IndiaRailMap nodes={nodes} routes={routes.map(r => ({...r, status: Math.random()>0.8?"delayed":"on_time", progress: Math.random()}))} nodeInfo={nodeInfo} />
+          <div className="flex flex-wrap items-center gap-2">
+            <select className="h-9 rounded-md border px-2 text-sm">
+              <option>Current Day</option>
+              <option>AI-Optimized</option>
+              <option>Manual Plan</option>
+            </select>
+            <div className="flex flex-wrap gap-2 text-xs">
+              <button className="px-2 py-1 rounded-full border">High Cost Routes</button>
+              <button className="px-2 py-1 rounded-full border">Low Utilization</button>
+              <button className="px-2 py-1 rounded-full border">Critical Orders</button>
+            </div>
+          </div>
+          <RealMap scenario="current" />
           <ProcessPanel />
           <DailyTimeline />
         </div>
