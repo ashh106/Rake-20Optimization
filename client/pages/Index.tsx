@@ -7,6 +7,7 @@ import ProcessPanel from "@/components/app/ProcessPanel";
 import AiInsightsPanel from "@/components/app/AiInsights";
 import ForecastSnapshot from "@/components/app/ForecastSnapshot";
 import DailyTimeline from "@/components/app/DailyTimeline";
+import WhatIfModal from "@/components/app/WhatIfModal";
 import { kpis as mockKpis, nodes, routes } from "@/data/mock";
 import { CircleDollarSign, CheckCircle, Gauge, Shield } from "lucide-react";
 
