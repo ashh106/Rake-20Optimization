@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Lightbulb } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-interface Insight { id: string; text: string; action?: string }
+interface Insight { id: string; text: string; action?: string; category?: string; priority?: "High"|"Moderate"|"Info" }
 
 export default function AiInsightsPanel() {
   const { toast } = useToast();
