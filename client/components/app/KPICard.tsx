@@ -1,7 +1,7 @@
 import { motion, useAnimation } from "framer-motion";
 import { useEffect } from "react";
 
-export default function KPICard({ label, value, prefix = "", suffix = "", icon }: { label: string; value: number; prefix?: string; suffix?: string; icon?: React.ReactNode }) {
+export default function KPICard({ label, value, prefix = "", suffix = "", icon, onClick }: { label: string; value: number; prefix?: string; suffix?: string; icon?: React.ReactNode; onClick?: () => void }) {
   const controls = useAnimation();
   useEffect(() => {
     controls.start({
