@@ -15,7 +15,7 @@ export default function DailyTimeline() {
 
   return (
     <div className="rounded-xl border bg-card p-3 shadow-sm">
-      <div className="text-sm font-semibold mb-2">Daily Plan Timeline</div>
+      <div className="text-sm font-semibold mb-2"></div>
       <div className="relative overflow-x-auto">
         <div className="flex items-center gap-6 min-w-max pl-2">
           {events.map((e) => {
