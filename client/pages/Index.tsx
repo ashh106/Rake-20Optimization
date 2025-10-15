@@ -108,11 +108,21 @@ useEffect(() => {
     
 
     
-      {/* Top Section: Daily Schedule (75%) + Mini Map (25%) */}
+      {/* Top Section:  (75%) + Mini Map (25%) */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Left: Daily Schedule */}
-        <div className="lg:col-span-3 rounded-lg border bg-card shadow-sm">
-          <div className="p-3 border-b">
+        <div className="lg:col-span-3 rounded-lg border bg-card shadow-sm relative">
+  {/* Loading Overlay */}
+  {generating && (
+    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/10 backdrop-blur-sm rounded-lg">
+      <div className="h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-2"></div>
+      <p className="text-sm text-muted-foreground">Generating schedule...</p>
+    </div>
+  )}
+
+  <div className="p-3 border-b">
+{/* changes made here  */}
+
             <div className="flex justify-between items-center">
               <h3 className="font-semibold">Daily Schedule</h3>
               <div className="flex items-center gap-2">
