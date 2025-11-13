@@ -2,7 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
-import { getData, optimize, simulate, forecast, uploadData, reports, kpis, orders, stockyards, rakes, lockPlan, jobStatus, planByDate, alerts, live, audit, modelRetrain, forecastInventory, insights, forecastSummary } from "./routes/sail";
+import { getData, optimize, simulate, forecast, uploadData, reports, kpis, orders, stockyards, rakes, lockPlan, jobStatus, planByDate, alerts, live, audit, modelRetrain, forecastInventory, insights, forecastSummary, proxyGetOptimizedPlan, proxyGetSummary, proxyDownloadPlan, proxyDatasets, proxyCustomers, proxyCustomerProducts, proxyStockyardProducts, proxyStockyardLocations, proxyStockyardCustomerDistances, proxyBokaroStockyardDistances } from "./routes/sail";
 
 export function createServer() {
   const app = express();
@@ -41,6 +41,18 @@ export function createServer() {
   app.get("/api/live", live);
   app.post("/api/audit", audit);
   app.post("/api/model/retrain", modelRetrain);
+
+  // FastAPI proxy routes
+  app.get("/api/get-optimized-plan", proxyGetOptimizedPlan);
+  app.get("/api/get-summary", proxyGetSummary);
+  app.get("/api/download-plan", proxyDownloadPlan);
+  app.get("/api/datasets", proxyDatasets);
+  app.get("/api/customers", proxyCustomers);
+  app.get("/api/customer_products", proxyCustomerProducts);
+  app.get("/api/stockyard_products", proxyStockyardProducts);
+  app.get("/api/stockyard_locations", proxyStockyardLocations);
+  app.get("/api/stockyard_customer_distances", proxyStockyardCustomerDistances);
+  app.get("/api/bokaro_stockyard_distances", proxyBokaroStockyardDistances);
 
   return app;
 }

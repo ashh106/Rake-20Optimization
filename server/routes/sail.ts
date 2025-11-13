@@ -1,4 +1,17 @@
-import { RequestHandler } from "express";
+import { RequestHandler, Request, Response } from "express";
+import axios from "axios";
+import { FASTAPI_BASE_URL } from "../config";
+import type {
+  OptimizedPlan,
+  Summary,
+  Dataset,
+  Customer,
+  CustomerProduct,
+  StockyardProduct,
+  StockyardLocation,
+  DistanceRecord,
+  ApiError,
+} from "@shared/api";
 
 // Mock data per contracts
 const KPI_SUMMARY = {
@@ -174,3 +187,103 @@ export const audit: RequestHandler = (req, res) => {
 export const modelRetrain: RequestHandler = (_req, res) => {
   res.json({ ok: true, started_at: new Date().toISOString(), job_id: `model-${Math.floor(Math.random() * 1000)}` });
 };
+
+// ---------------- FastAPI proxy handlers ----------------
+function handleProxyError(res: Response, err: unknown, fallbackMessage: string, statusCode = 500) {
+  const message = err instanceof Error ? err.message : String(err);
+  return res.status(statusCode).json({ status: "error", message: fallbackMessage, details: message } satisfies ApiError);
+}
+
+export async function proxyGetOptimizedPlan(_req: Request, res: Response) {
+  try {
+    const rsp = await axios.get<OptimizedPlan[]>(`${FASTAPI_BASE_URL}/get-optimized-plan`);
+    return res.json({ status: "success", data: rsp.data });
+  } catch (err) {
+    return handleProxyError(res, err, "Unable to fetch data from FastAPI");
+  }
+}
+
+export async function proxyGetSummary(_req: Request, res: Response) {
+  try {
+    const rsp = await axios.get<Summary>(`${FASTAPI_BASE_URL}/get-summary`);
+    return res.json({ status: "success", data: rsp.data });
+  } catch (err) {
+    return handleProxyError(res, err, "Unable to fetch data from FastAPI");
+  }
+}
+
+export async function proxyDownloadPlan(_req: Request, res: Response) {
+  try {
+    const rsp = await axios.get(`${FASTAPI_BASE_URL}/download-plan`, { responseType: "arraybuffer" });
+    const contentType = rsp.headers["content-type"] || "application/octet-stream";
+    const disposition = rsp.headers["content-disposition"] || 'attachment; filename="plan.csv"';
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Content-Disposition", disposition);
+    return res.send(Buffer.from(rsp.data));
+  } catch (err) {
+    return handleProxyError(res, err, "Unable to fetch data from FastAPI");
+  }
+}
+
+export async function proxyDatasets(_req: Request, res: Response) {
+  try {
+    const rsp = await axios.get<Dataset[]>(`${FASTAPI_BASE_URL}/datasets`);
+    return res.json({ status: "success", data: rsp.data });
+  } catch (err) {
+    return handleProxyError(res, err, "Unable to fetch data from FastAPI");
+  }
+}
+
+export async function proxyCustomers(_req: Request, res: Response) {
+  try {
+    const rsp = await axios.get<Customer[]>(`${FASTAPI_BASE_URL}/customers`);
+    return res.json({ status: "success", data: rsp.data });
+  } catch (err) {
+    return handleProxyError(res, err, "Unable to fetch data from FastAPI");
+  }
+}
+
+export async function proxyCustomerProducts(_req: Request, res: Response) {
+  try {
+    const rsp = await axios.get<CustomerProduct[]>(`${FASTAPI_BASE_URL}/customer_products`);
+    return res.json({ status: "success", data: rsp.data });
+  } catch (err) {
+    return handleProxyError(res, err, "Unable to fetch data from FastAPI");
+  }
+}
+
+export async function proxyStockyardProducts(_req: Request, res: Response) {
+  try {
+    const rsp = await axios.get<StockyardProduct[]>(`${FASTAPI_BASE_URL}/stockyard_products`);
+    return res.json({ status: "success", data: rsp.data });
+  } catch (err) {
+    return handleProxyError(res, err, "Unable to fetch data from FastAPI");
+  }
+}
+
+export async function proxyStockyardLocations(_req: Request, res: Response) {
+  try {
+    const rsp = await axios.get<StockyardLocation[]>(`${FASTAPI_BASE_URL}/stockyard_locations`);
+    return res.json({ status: "success", data: rsp.data });
+  } catch (err) {
+    return handleProxyError(res, err, "Unable to fetch data from FastAPI");
+  }
+}
+
+export async function proxyStockyardCustomerDistances(_req: Request, res: Response) {
+  try {
+    const rsp = await axios.get<DistanceRecord[]>(`${FASTAPI_BASE_URL}/stockyard_customer_distances`);
+    return res.json({ status: "success", data: rsp.data });
+  } catch (err) {
+    return handleProxyError(res, err, "Unable to fetch data from FastAPI");
+  }
+}
+
+export async function proxyBokaroStockyardDistances(_req: Request, res: Response) {
+  try {
+    const rsp = await axios.get<DistanceRecord[]>(`${FASTAPI_BASE_URL}/bokaro_stockyard_distances`);
+    return res.json({ status: "success", data: rsp.data });
+  } catch (err) {
+    return handleProxyError(res, err, "Unable to fetch data from FastAPI");
+  }
+}

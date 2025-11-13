@@ -6,16 +6,22 @@ import PlanTable, { type PlanRow } from "@/components/app/PlanTable";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { nodes } from "@/data/mock";
+import type { OptimizedPlan } from "@shared/api";
 
 export default function RakePlanner() {
   const { toast } = useToast();
   const [planDate, setPlanDate] = useState<string>(new Date().toISOString().slice(0, 10));
   const [planRows, setPlanRows] = useState<PlanRow[]>([]);
 
-  const loadPlan = async (date: string) => {
-    const res = await fetch(`/api/plans/${date}`);
-    const data = await res.json();
-    setPlanRows(data.rakes || []);
+  const loadPlan = async (_date: string) => {
+    try {
+      const res = await fetch(`/api/get-optimized-plan`);
+      const payload = await res.json();
+      const items: OptimizedPlan[] = payload?.data ?? [];
+      setPlanRows(items as unknown as PlanRow[]);
+    } catch (e) {
+      toast({ title: "Failed to load optimized plan", description: String((e as Error)?.message ?? e), variant: "destructive" as any });
+    }
   };
 
   useEffect(() => {
@@ -47,7 +53,9 @@ export default function RakePlanner() {
     if (res.ok) {
       toast({ title: "Plan locked & exported (CSV/PDF)" });
       // Trigger mock downloads
-      const csv = new Blob(["rake_id,source,destinations,load_t,wagons,dep,eta,util,cost,status\n" + planRows.map((r) => `${r.rake_id},${r.source},${r.destinations.join("|")},${r.load_tonnes},${r.wagons},${r.departure},${r.eta},${r.utilization},${r.cost},${r.status}`).join("\n")], { type: "text/csv" });
+      const header = "cmo_stockyard_location_id,product_id,customer_id,quantity_tonnes,wagons_used,distance_km,transport_cost,loading_cost,total_cost\n";
+      const rows = planRows.map((r) => `${r.cmo_stockyard_location_id},${r.product_id},${r.customer_id},${r.quantity_tonnes},${r.wagons_used},${r.distance_km},${r.transport_cost},${r.loading_cost},${r.total_cost}`).join("\n");
+      const csv = new Blob([header + rows], { type: "text/csv" });
       const a1 = document.createElement("a"); a1.href = URL.createObjectURL(csv); a1.download = `plan-${planDate}.csv`; a1.click();
       const pdf = new Blob(["Plan PDF placeholder"], { type: "application/pdf" });
       const a2 = document.createElement("a"); a2.href = URL.createObjectURL(pdf); a2.download = `plan-${planDate}.pdf`; a2.click();
@@ -57,8 +65,8 @@ export default function RakePlanner() {
   const onEdit = async (row: PlanRow) => {
     const reason = window.prompt("Provide override reason:");
     if (!reason) return;
-    await fetch("/api/audit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ user: "planner", reason, change: { rake_id: row.rake_id, edit: { source: row.source, destinations: row.destinations, load_tonnes: row.load_tonnes } } }) });
-    toast({ title: "Override recorded", description: row.rake_id });
+    await fetch("/api/audit", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ user: "planner", reason, change: { ref: { product_id: row.product_id, customer_id: row.customer_id, stockyard_location: row.cmo_stockyard_location_id }, edit: { quantity_tonnes: row.quantity_tonnes, wagons_used: row.wagons_used } } }) });
+    toast({ title: "Override recorded", description: `${row.product_id} → ${row.customer_id}` });
     reRunQuick();
   };
 
@@ -79,7 +87,7 @@ export default function RakePlanner() {
       </div>
       <PlanTable rows={planRows} onEdit={onEdit} />
       <div>
-        <PlannerMap nodes={nodes} rakes={planRows.map((r, i) => ({ id: r.rake_id, x: 50 + i * 5, y: 40 + i * 2, label: r.rake_id }))} />
+        <PlannerMap nodes={nodes} rakes={planRows.map((r, i) => ({ id: `${r.product_id}-${r.customer_id}-${i}`, x: 50 + i * 5, y: 40 + i * 2, label: r.product_id }))} />
       </div>
     </div>
   );

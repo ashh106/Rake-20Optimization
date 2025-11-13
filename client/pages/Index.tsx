@@ -114,7 +114,7 @@ useEffect(() => {
         <div className="lg:col-span-3 rounded-lg border bg-card shadow-sm relative">
   {/* Loading Overlay */}
   {generating && (
-    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/10 backdrop-blur-sm rounded-lg">
+    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/70 backdrop-blur-sm rounded-lg">
       <div className="h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-2"></div>
       <p className="text-sm text-muted-foreground">Generating schedule...</p>
     </div>
