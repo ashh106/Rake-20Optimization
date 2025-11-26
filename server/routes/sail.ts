@@ -13,6 +13,47 @@ import type {
   ApiError,
 } from "@shared/api";
 
+// Mock train timeline data
+const MOCK_TRAIN_TIMELINE = (trainId: string) => {
+  const now = new Date();
+  return [
+    {
+      stopName: "Bokaro",
+      scheduledTime: new Date(now.getTime() - 3600000 * 2).toISOString(),
+      actualTime: new Date(now.getTime() - 3600000 * 2 - 60000 * 5).toISOString(),
+      status: "departed",
+      delayMinutes: -5,
+      lat: 23.6693,
+      lon: 86.1511,
+    },
+    {
+      stopName: "Dhanbad",
+      scheduledTime: new Date(now.getTime() - 3600000).toISOString(),
+      actualTime: new Date(now.getTime() - 3600000 + 60000 * 10).toISOString(),
+      status: "arrived",
+      delayMinutes: 10,
+      lat: 23.7957,
+      lon: 86.4304,
+    },
+    {
+      stopName: "Asansol",
+      scheduledTime: new Date(now.getTime() + 3600000).toISOString(),
+      status: "current",
+      delayMinutes: 15,
+      lat: 23.6739,
+      lon: 86.9524,
+    },
+    {
+      stopName: "Kolkata",
+      scheduledTime: new Date(now.getTime() + 3600000 * 3).toISOString(),
+      status: "upcoming",
+      delayMinutes: 0,
+      lat: 22.5726,
+      lon: 88.3639,
+    },
+  ];
+};
+
 // Mock data per contracts
 const KPI_SUMMARY = {
   total_cost: 1234000,
@@ -188,6 +229,12 @@ export const modelRetrain: RequestHandler = (_req, res) => {
   res.json({ ok: true, started_at: new Date().toISOString(), job_id: `model-${Math.floor(Math.random() * 1000)}` });
 };
 
+// Train timeline endpoint
+export const trainTimeline: RequestHandler = (req, res) => {
+  const { trainId } = req.params;
+  res.json(MOCK_TRAIN_TIMELINE(trainId));
+};
+
 // ---------------- FastAPI proxy handlers ----------------
 function handleProxyError(res: Response, err: unknown, fallbackMessage: string, statusCode = 500) {
   const message = err instanceof Error ? err.message : String(err);
@@ -286,4 +333,123 @@ export async function proxyBokaroStockyardDistances(_req: Request, res: Response
   } catch (err) {
     return handleProxyError(res, err, "Unable to fetch data from FastAPI");
   }
+}
+
+async function proxyDatasetWrite(req: Request, res: Response, path: string, method: "POST" | "PUT") {
+  try {
+    const url = `${FASTAPI_BASE_URL}${path.startsWith("/") ? path : `/${path}`}`;
+    const config = { headers: { "Content-Type": "application/json" } };
+    const rsp =
+      method === "POST"
+        ? await axios.post(url, req.body, config)
+        : await axios.put(url, req.body, config);
+    return res.json({ status: "success", data: rsp.data });
+  } catch (err) {
+    const action = method === "POST" ? "create" : "update";
+    return handleProxyError(res, err, `Unable to ${action} dataset at ${path}`);
+  }
+}
+
+export async function proxyPostDatasetBokaroStockyardDistances(req: Request, res: Response) {
+  return proxyDatasetWrite(req, res, "/datasets/bokaro_stockyard_distances", "POST");
+}
+
+export async function proxyPutDatasetBokaroStockyardDistances(req: Request, res: Response) {
+  return proxyDatasetWrite(req, res, "/datasets/bokaro_stockyard_distances", "PUT");
+}
+
+export async function proxyPostDatasetCustomerLocations(req: Request, res: Response) {
+  return proxyDatasetWrite(req, res, "/datasets/customer_locations", "POST");
+}
+
+export async function proxyPutDatasetCustomerLocations(req: Request, res: Response) {
+  return proxyDatasetWrite(req, res, "/datasets/customer_locations", "PUT");
+}
+
+export async function proxyPostDatasetCustomerPriority(req: Request, res: Response) {
+  return proxyDatasetWrite(req, res, "/datasets/customer_priority", "POST");
+}
+
+export async function proxyPutDatasetCustomerPriority(req: Request, res: Response) {
+  return proxyDatasetWrite(req, res, "/datasets/customer_priority", "PUT");
+}
+
+export async function proxyPostDatasetCustomerProducts(req: Request, res: Response) {
+  return proxyDatasetWrite(req, res, "/datasets/customer_products", "POST");
+}
+
+export async function proxyPutDatasetCustomerProducts(req: Request, res: Response) {
+  return proxyDatasetWrite(req, res, "/datasets/customer_products", "PUT");
+}
+
+export async function proxyPostDatasetCustomers(req: Request, res: Response) {
+  return proxyDatasetWrite(req, res, "/datasets/customers", "POST");
+}
+
+export async function proxyPutDatasetCustomers(req: Request, res: Response) {
+  return proxyDatasetWrite(req, res, "/datasets/customers", "PUT");
+}
+
+export async function proxyPostDatasetProductWagonCompatibility(req: Request, res: Response) {
+  return proxyDatasetWrite(req, res, "/datasets/product_wagon_compatibility", "POST");
+}
+
+export async function proxyPutDatasetProductWagonCompatibility(req: Request, res: Response) {
+  return proxyDatasetWrite(req, res, "/datasets/product_wagon_compatibility", "PUT");
+}
+
+export async function proxyPostDatasetStockyardCustomerDistances(req: Request, res: Response) {
+  return proxyDatasetWrite(req, res, "/datasets/stockyard_customer_distances", "POST");
+}
+
+export async function proxyPutDatasetStockyardCustomerDistances(req: Request, res: Response) {
+  return proxyDatasetWrite(req, res, "/datasets/stockyard_customer_distances", "PUT");
+}
+
+export async function proxyPostDatasetStockyardLocations(req: Request, res: Response) {
+  return proxyDatasetWrite(req, res, "/datasets/stockyard_locations", "POST");
+}
+
+export async function proxyPutDatasetStockyardLocations(req: Request, res: Response) {
+  return proxyDatasetWrite(req, res, "/datasets/stockyard_locations", "PUT");
+}
+
+export async function proxyPostDatasetStockyardProducts(req: Request, res: Response) {
+  return proxyDatasetWrite(req, res, "/datasets/stockyard_products", "POST");
+}
+
+export async function proxyPutDatasetStockyardProducts(req: Request, res: Response) {
+  return proxyDatasetWrite(req, res, "/datasets/stockyard_products", "PUT");
+}
+
+export async function proxyPostDatasetStockyardRakes(req: Request, res: Response) {
+  return proxyDatasetWrite(req, res, "/datasets/stockyard_rakes", "POST");
+}
+
+export async function proxyPutDatasetStockyardRakes(req: Request, res: Response) {
+  return proxyDatasetWrite(req, res, "/datasets/stockyard_rakes", "PUT");
+}
+
+export async function proxyPostDatasetStockyardReplenishment(req: Request, res: Response) {
+  return proxyDatasetWrite(req, res, "/datasets/stockyard_replenishment", "POST");
+}
+
+export async function proxyPutDatasetStockyardReplenishment(req: Request, res: Response) {
+  return proxyDatasetWrite(req, res, "/datasets/stockyard_replenishment", "PUT");
+}
+
+export async function proxyPostDatasetStockyardWagons(req: Request, res: Response) {
+  return proxyDatasetWrite(req, res, "/datasets/stockyard_wagons", "POST");
+}
+
+export async function proxyPutDatasetStockyardWagons(req: Request, res: Response) {
+  return proxyDatasetWrite(req, res, "/datasets/stockyard_wagons", "PUT");
+}
+
+export async function proxyPostDatasetStockyards(req: Request, res: Response) {
+  return proxyDatasetWrite(req, res, "/datasets/stockyards", "POST");
+}
+
+export async function proxyPutDatasetStockyards(req: Request, res: Response) {
+  return proxyDatasetWrite(req, res, "/datasets/stockyards", "PUT");
 }

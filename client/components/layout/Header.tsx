@@ -52,6 +52,7 @@ export default function Header({ currentPath }: { currentPath: string }) {
     { id: "1", type: "alert", text: "Train delayed at Rourkela", time: "10:15 AM" },
     { id: "2", type: "maintenance", text: "Scheduled maintenance in Bokaro", time: "11:00 AM" },
   ]);
+  const [hasUnreadAlerts, setHasUnreadAlerts] = useState(true);
 
   return (
     <header className="h-16 sticky top-0 z-40 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b flex items-center px-4 md:px-6">
@@ -61,13 +62,16 @@ export default function Header({ currentPath }: { currentPath: string }) {
         {/* Notification dropdown */}
         <div className="flex justify-end relative">
           <button
-            className="relative inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm hover:bg-muted"
-            onClick={() => setNotifOpen((v) => !v)}
+            className="relative inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm hover:bg-muted transition-transform active:scale-95"
+            onClick={() => {
+              setNotifOpen((v) => !v);
+              setHasUnreadAlerts(false);
+            }}
             aria-label="Open notifications"
           >
             <Bell className="h-4 w-4" />
             <span className="hidden sm:inline">Alerts</span>
-            {alerts.length > 0 && (
+            {hasUnreadAlerts && alerts.length > 0 && (
               <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center">
                 {Math.min(9, alerts.length)}
               </span>

@@ -54,8 +54,10 @@ export interface Product {
 
 export interface CustomerProduct {
   customer_id: string | number;
-  product_id: string | number;
-  demand_tonnes?: number;
+  customer_location_id: string | number;
+  product_list: (string | number)[];
+  quantity_list: number[];
+  priority_weight: number;
   [k: string]: unknown;
 }
 

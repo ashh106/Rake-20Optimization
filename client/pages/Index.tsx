@@ -23,9 +23,9 @@ export default function DashboardOverview() {
   const [schedule, setSchedule] = useState(
     Array.from({ length: 4 }).map((_, i) => ({
       id: `RKA-${i + 1}23${i + 1}`,
-      from: 'Bokaro',
-      to: ['Kolkata', 'Durgapur', 'Rourkela', 'Ranchi'][i % 4],
-      goods: 'Steel Coils',
+      from: "Bokaro",
+      to: ["Kolkata", "Durgapur", "Rourkela", "Ranchi"][i % 4],
+      goods: "Steel Coils",
       batch: `${i + 1}2345`,
       wagons: (i + 1) * 2,
       capacityMt: (i + 1) * 2500,
@@ -36,19 +36,19 @@ export default function DashboardOverview() {
   );
 
   const generateSchedule = () => {
-    const choices = ['Kolkata', 'Durgapur', 'Rourkela', 'Ranchi', 'Jamshedpur'];
+    const choices = ["Kolkata", "Durgapur", "Rourkela", "Ranchi", "Jamshedpur"];
     const statuses = [0, 1, 2];
     const newRows = Array.from({ length: 4 }).map((_, i) => ({
-      id: `RKA-${Math.floor(1000 + Math.random()*9000)}`,
-      from: 'Bokaro',
-      to: choices[Math.floor(Math.random()*choices.length)],
-      goods: 'Steel Coils',
-      batch: `${Math.floor(10000 + Math.random()*90000)}`,
-      wagons: Math.floor(2 + Math.random()*10),
-      capacityMt: Math.floor(20 + Math.random()*100) * 100,
-      fillPct: Math.floor(60 + Math.random()*40),
-      cost: Math.floor(8 + Math.random()*50) * 100000,
-      statusIdx: statuses[Math.floor(Math.random()*statuses.length)],
+      id: `RKA-${Math.floor(1000 + Math.random() * 9000)}`,
+      from: "Bokaro",
+      to: choices[Math.floor(Math.random() * choices.length)],
+      goods: "Steel Coils",
+      batch: `${Math.floor(10000 + Math.random() * 90000)}`,
+      wagons: Math.floor(2 + Math.random() * 10),
+      capacityMt: Math.floor(20 + Math.random() * 100) * 100,
+      fillPct: Math.floor(60 + Math.random() * 40),
+      cost: Math.floor(8 + Math.random() * 50) * 100000,
+      statusIdx: statuses[Math.floor(Math.random() * statuses.length)],
     }));
     setSchedule(newRows);
   };
@@ -82,22 +82,22 @@ export default function DashboardOverview() {
     load();
   }, []);
 
-  const [selectedTrain, setSelectedTrain] = useState(schedule[0]?.id || '');
-const [timelineData, setTimelineData] = useState<Record<string, { text: string; status: 'success' | 'warn' | 'info' }[]>>({});
+  const [selectedTrain, setSelectedTrain] = useState(schedule[0]?.id || "");
+  const [timelineData, setTimelineData] = useState<Record<string, { text: string; status: "success" | "warn" | "info" }[]>>({});
 
-useEffect(() => {
-  const data: Record<string, { text: string; status: 'success' | 'warn' | 'info' }[]> = {};
-  schedule.forEach((s) => {
-    data[s.id] = [
-      { text: `${s.id} dispatched from ${s.from}`, status: 'success' },
-      { text: `${s.id} arriving at ${s.to} delayed 10m`, status: 'warn' },
-      { text: `Truck assignments pending for ${s.id}`, status: 'info' },
-    ];
-  });
-  setTimelineData(data);
+  useEffect(() => {
+    const data: Record<string, { text: string; status: "success" | "warn" | "info" }[]> = {};
+    schedule.forEach((s) => {
+      data[s.id] = [
+        { text: `${s.id} dispatched from ${s.from}`, status: "success" },
+        { text: `${s.id} arriving at ${s.to} delayed 10m`, status: "warn" },
+        { text: `Truck assignments pending for ${s.id}`, status: "info" },
+      ];
+    });
+    setTimelineData(data);
 
-  if (!data[selectedTrain]) setSelectedTrain(schedule[0]?.id || '');
-}, [schedule]);
+    if (!data[selectedTrain]) setSelectedTrain(schedule[0]?.id || "");
+  }, [schedule]);
 
 
   return (
@@ -112,16 +112,16 @@ useEffect(() => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Left: Daily Schedule */}
         <div className="lg:col-span-3 rounded-lg border bg-card shadow-sm relative">
-  {/* Loading Overlay */}
-  {generating && (
-    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/70 backdrop-blur-sm rounded-lg">
-      <div className="h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-2"></div>
-      <p className="text-sm text-muted-foreground">Generating schedule...</p>
-    </div>
-  )}
+          {/* Loading Overlay */}
+          {generating && (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/70 backdrop-blur-sm rounded-lg">
+              <div className="h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mb-2"></div>
+              <p className="text-sm text-muted-foreground">Generating schedule...</p>
+            </div>
+          )}
 
-  <div className="p-3 border-b">
-{/* changes made here  */}
+          <div className="p-3 border-b">
+            {/* changes made here  */}
 
             <div className="flex justify-between items-center">
               <h3 className="font-semibold">Daily Schedule</h3>
@@ -133,24 +133,24 @@ useEffect(() => {
                 </select>
                 <button
                   className="h-8 px-3 text-xs rounded-md bg-primary text-primary-foreground disabled:opacity-60"
-                  onClick={async ()=>{
+                  onClick={async () => {
                     try {
                       setGenerating(true);
-                      await fetch('/api/schedule/generate',{method:'POST'});
-                      setTimeout(()=>{
+                      await fetch("/api/schedule/generate", { method: "POST" });
+                      setTimeout(() => {
                         setGenerating(false);
                         generateSchedule();
-                        setToast({ msg: 'New optimized schedule generated.', type: 'success' });
-                        setAlerts((prev)=> [{ id: String(Date.now()), type: 'info', text: 'Schedule update successful', time: new Date().toLocaleTimeString() }, ...prev].slice(0,10));
+                        setToast({ msg: "New optimized schedule generated.", type: "success" });
+                        setAlerts((prev) => [{ id: String(Date.now()), type: "info", text: "Schedule update successful", time: new Date().toLocaleTimeString() }, ...prev].slice(0, 10));
                       }, 1500);
                     } catch {
                       setGenerating(false);
-                      setToast({ msg: 'Failed to generate plan', type: 'error' });
+                      setToast({ msg: "Failed to generate plan", type: "error" });
                     }
                   }}
                   disabled={generating}
                 >
-                  {generating ? 'Generating…' : 'Generate Schedule'}
+                  {generating ? "Generating…" : "Generate Schedule"}
                 </button>
                 <a href="/planner" className="h-8 px-3 text-xs rounded-md border bg-background">Re-Plan Shedule</a>
               </div>
@@ -186,12 +186,12 @@ useEffect(() => {
                         <div className="bg-green-500 h-2 rounded-full" style={{ width: `${row.fillPct}%` }} />
                       </div>
                     </td>
-                    <td className="p-3">₹{row.cost.toLocaleString('en-IN')}</td>
+                    <td className="p-3">₹{row.cost.toLocaleString("en-IN")}</td>
                     <td className="p-3">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        row.statusIdx === 0 ? 'bg-green-100 text-green-800' : row.statusIdx === 1 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800'
+                        row.statusIdx === 0 ? "bg-green-100 text-green-800" : row.statusIdx === 1 ? "bg-yellow-100 text-yellow-800" : "bg-red-100 text-red-800"
                       }`}>
-                        {['On Time', 'In Transit', 'Delayed'][row.statusIdx]}
+                        {["On Time", "In Transit", "Delayed"][row.statusIdx]}
                       </span>
                     </td>
                   </tr>

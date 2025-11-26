@@ -14,6 +14,7 @@ import Inventories from "./pages/Inventories";
 import LiveOps from "./pages/LiveOps";
 import { Placeholder } from "./pages/Placeholders";
 import Layout from "./components/layout/Layout";
+import AdminDataManagementPage from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -32,7 +33,7 @@ const App = () => (
             <Route path="/live" element={<LiveOps />} />
             <Route path="/forecasts" element={<Placeholder title="AI Forecasts & What-If Analysis" />} />
             <Route path="/reports" element={<Placeholder title="Reports & Insights" />} />
-            <Route path="/admin" element={<Placeholder title="Admin & Data Management" />} />
+            <Route path="/admin" element={<AdminDataManagementPage />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
